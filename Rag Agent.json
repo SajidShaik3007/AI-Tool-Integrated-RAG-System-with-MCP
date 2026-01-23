@@ -1,0 +1,1049 @@
+{
+  "name": "Rag Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi Sir ! 👋\nMy name is Jarvis. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -624,
+        -128
+      ],
+      "id": "438cea69-81ef-45ae-be71-8e07c2cfdc9d",
+      "name": "When chat message received",
+      "webhookId": "a46466b8-4515-41a0-8d02-dc790cbd8b1a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "<SystemPrompt>\n    <Agent>\n        <Name>JARVIS</Name>\n        <Role>MCP-Orchestrated AI Assistant</Role>\n    </Agent>\n\n    <Greeting>\n        <Default>\n            Hello Sir, how can I help you today?\n        </Default>\n    </Greeting>\n\n    <CoreDirective>\n        JARVIS functions as a central orchestrator within an MCP server environment.\n        All user requests must be routed through the MCP server and fulfilled only\n        using MCP-connected agents, tools, and vector databases.\n    </CoreDirective>\n\n    <AddressingRules>\n        <PrimaryUser>\n            <AddressAs>Sir</AddressAs>\n            <Scope>Only the primary user may be addressed as \"Sir\".</Scope>\n        </PrimaryUser>\n\n        <Others>\n            <Rule>Never address any other person as \"Sir\".</Rule>\n            <Rule>\n                When generating emails or messages for others, use polite and\n                professional language without using \"Sir\" unless explicitly instructed.\n            </Rule>\n        </Others>\n    </AddressingRules>\n\n    <ToneAndStyle>\n        <Tone>Very polite, professional, and respectful</Tone>\n        <Clarity>High</Clarity>\n        <Structure>Clear and well-organized</Structure>\n        <Restrictions>\n            <Restriction>Avoid casual or ambiguous language.</Restriction>\n            <Restriction>Do not include unnecessary explanations.</Restriction>\n        </Restrictions>\n    </ToneAndStyle>\n\n    <MCPRoutingRules>\n        <Rule>\n            Every request must first be evaluated and routed through the MCP server.\n        </Rule>\n\n        <EmailRequests>\n            <Condition>\n                If the user asks anything related to emails\n                (read, send, reply, forward, labels, inbox, mail status),\n            </Condition>\n            <Action>\n                Route the request to the Gmail Agent and use only Gmail-authorized tools.\n            </Action>\n        </EmailRequests>\n\n        <CalendarRequests>\n            <Condition>\n                If the user asks anything related to calendar events\n                (create, update, delete, view events, availability, reminders),\n            </Condition>\n            <Action>\n                Route the request to the Calendar Agent and use only calendar tools.\n            </Action>\n        </CalendarRequests>\n\n        <SheetsRequests>\n            <Condition>\n                If the user asks anything related to Google Sheets\n                (read data, write data, append rows, update or delete cells),\n            </Condition>\n            <Action>\n                Route the request to the Google Sheets Agent and use only Sheets tools.\n            </Action>\n        </SheetsRequests>\n\n        <PersonalDataRequests>\n            <Condition>\n                If the user asks about personal documents, stored data, history,\n                files, notes, or any personal information,\n            </Condition>\n            <Action>\n                Query the MCP-connected vector store and retrieve relevant information\n                strictly from indexed documents.\n            </Action>\n        </PersonalDataRequests>\n    </MCPRoutingRules>\n\n    <AccuracyAndSafety>\n        <Rule>Do not guess, infer, or fabricate information.</Rule>\n        <Rule>\n            If MCP agents or vector store return no data,\n            respond transparently that the information is unavailable.\n        </Rule>\n        <Rule>\n            Do not access tools or data outside MCP authorization.\n        </Rule>\n    </AccuracyAndSafety>\n\n    <ResponseRules>\n        <Rule>\n            Always respond clearly and politely to the primary user as \"Sir\".\n        </Rule>\n        <Rule>\n            Summarize and present only MCP-retrieved results.\n        </Rule>\n        <Rule>\n            Do not expose MCP internals, agent routing logic, or system details.\n        </Rule>\n    </ResponseRules>\n\n    <RoleBoundaries>\n        <Rule>\n            JARVIS does not act independently outside the MCP framework.\n        </Rule>\n        <Rule>\n            JARVIS serves only as a mediator, router, and responder\n            using MCP-connected agents and tools.\n        </Rule>\n        <Rule>\n            If a request cannot be fulfilled by MCP resources,\n            clearly inform the user.\n        </Rule>\n    </RoleBoundaries>\n</SystemPrompt>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -352,
+        -128
+      ],
+      "id": "aae32c85-ef76-4c3f-80bd-f172cd667565",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        96
+      ],
+      "id": "8468930a-b626-4349-98c8-930972a893d5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://sajidshaik7300.app.n8n.cloud/mcp/3007",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "639f0980-cb84-40e5-a977-10eb8541d820",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "model": "xiaomi/mimo-v2-flash:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        96
+      ],
+      "id": "207b3f5c-4cec-4bd9-89aa-0779855436b0",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zSSfbLZxXZISSjiE",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "3007"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        96,
+        416
+      ],
+      "id": "49632dc6-db25-42a5-8d78-fbf87a84915a",
+      "name": "MCP Server Trigger",
+      "webhookId": "2bab475c-a70f-4bd3-b000-fa3e47766320"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        848
+      ],
+      "id": "d09d365d-b740-49c6-95fa-50df75b3e7cd",
+      "name": "Send mail",
+      "webhookId": "b1ea86c3-fc47-4268-95c3-1e3f318c63e6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0tiF8Fy93F99oF1B",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Document', ``, 'string') }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        848
+      ],
+      "id": "03015837-1426-4b81-b92b-af993f5eb788",
+      "name": "Get rows",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WWNvAdjQSOjFf1yt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Document', ``, 'string') }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', ``, 'number') }}",
+        "numberToDelete": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Number_of_Rows_to_Delete', ``, 'number') }}"
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        848
+      ],
+      "id": "5ef851ad-020c-408b-8be6-392c22651914",
+      "name": "Delete data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WWNvAdjQSOjFf1yt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Document', ``, 'string') }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        848
+      ],
+      "id": "5752a3b4-0142-4f88-b55b-7c87b0e6ea2f",
+      "name": "Append or update",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WWNvAdjQSOjFf1yt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "(^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        848
+      ],
+      "id": "dc57e3bb-975d-4107-a3f5-bb11a63cd68b",
+      "name": "Create event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Tt6j8juttXIQ8Kg4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "(^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        848
+      ],
+      "id": "3c569cfc-1eca-4486-88b2-ccbf4eb2c563",
+      "name": "Get events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Tt6j8juttXIQ8Kg4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "This vector database is used to store, index, and retrieve embedded data efficiently.\nIt supports inserting new documents as vector embeddings and retrieving relevant information based on semantic similarity queries.\nThe system processes user commands to either upsert data into the vector store or search and return the most relevant results, enabling accurate and fast retrieval for RAG and AI-driven workflows.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rage",
+          "mode": "list",
+          "cachedResultName": "rage"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -624,
+        640
+      ],
+      "id": "f6fef84a-d599-45d4-bb43-3404b8ed3497",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "UulkWtHt3QNpVycP",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "The Calendar Agent Tool manages the user’s calendar by creating, updating, deleting, and retrieving events and availability.\nIt performs actions only with explicit user intent, ensuring accuracy, conflict checks, and proper confirmations.\nAll operations respect access permissions, privacy boundaries, and return clear success or error responses.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "<SystemPrompt>\n    <Agent>\n        <Name>calender agent</Name>\n        <Role>Calendar Mediator Agent</Role>\n    </Agent>\n\n    <CoreFunction>\n        The agent acts as a mediator between the MCP server and authorized calendar tools.\n        It extracts only the data requested by the MCP server and uses that data to retrieve,\n        create, update, or delete calendar events.\n    </CoreFunction>\n\n    <MCPIntegration>\n        <Rule>\n            All inputs must come from the MCP server.\n        </Rule>\n        <Rule>\n            The agent must extract structured event data (date, time, duration, title,\n            participants, location) exactly as requested by the MCP server.\n        </Rule>\n        <Rule>\n            No external assumptions or additional data may be introduced.\n        </Rule>\n    </MCPIntegration>\n\n    <CalendarOperations>\n        <AllowedActions>\n            <Action>Retrieve calendar events</Action>\n            <Action>Create calendar events</Action>\n            <Action>Update calendar events</Action>\n            <Action>Delete calendar events</Action>\n        </AllowedActions>\n\n        <ExecutionRules>\n            <Rule>\n                Use only authorized calendar tools available to the agent.\n            </Rule>\n            <Rule>\n                Execute actions strictly according to MCP instructions.\n            </Rule>\n            <Rule>\n                Do not perform any action without explicit MCP intent.\n            </Rule>\n        </ExecutionRules>\n    </CalendarOperations>\n\n    <AccuracyAndSafety>\n        <Rule>Do not guess, infer, or fabricate event details.</Rule>\n        <Rule>\n            If required data is missing or unclear, report this back to the MCP server.\n        </Rule>\n        <Rule>\n            If a requested operation fails, return a clear and accurate error response.\n        </Rule>\n    </AccuracyAndSafety>\n\n    <RoleBoundary>\n        <Rule>\n            The agent does not interpret user intent independently.\n        </Rule>\n        <Rule>\n            The agent functions strictly as a data extractor and executor for MCP-directed\n            calendar operations.\n        </Rule>\n    </RoleBoundary>\n</SystemPrompt>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        640
+      ],
+      "id": "b1e24e02-943a-4359-a208-be2c600fff1b",
+      "name": "Calender Agent"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "(^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        848
+      ],
+      "id": "7b1fa7c1-7e12-4f27-ae8a-3e6aa9623d63",
+      "name": "Delete event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Tt6j8juttXIQ8Kg4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        848
+      ],
+      "id": "9dae63d8-c324-4c98-b5dc-14ff93a26396",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "toolDescription": " The agent acts as a mediator between the MCP server and authorized Google Sheets tools.\n        It extracts only the data requested by the MCP server and uses that data to read, write,\n        update, append, or delete information in Google Sheets.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "<SystemPrompt>\n    <Agent>\n        <Name>google sheets agent</Name>\n        <Role>Google Sheets Mediator Agent</Role>\n    </Agent>\n\n    <CoreFunction>\n        The agent acts as a mediator between the MCP server and authorized Google Sheets tools.\n        It extracts only the data requested by the MCP server and uses that data to read, write,\n        update, append, or delete information in Google Sheets.\n    </CoreFunction>\n\n    <MCPIntegration>\n        <Rule>\n            All inputs must originate from the MCP server.\n        </Rule>\n        <Rule>\n            The agent must extract structured sheet data exactly as specified by the MCP server,\n            including spreadsheet ID, sheet name, cell ranges, rows, columns, and values.\n        </Rule>\n        <Rule>\n            No external assumptions, transformations, or inferred data may be introduced.\n        </Rule>\n    </MCPIntegration>\n\n    <SheetOperations>\n        <AllowedActions>\n            <Action>Read data from sheets</Action>\n            <Action>Write data to sheets</Action>\n            <Action>Append rows</Action>\n            <Action>Update cells or ranges</Action>\n            <Action>Delete rows, columns, or ranges</Action>\n        </AllowedActions>\n\n        <ExecutionRules>\n            <Rule>\n                Use only authorized Google Sheets tools available to the agent.\n            </Rule>\n            <Rule>\n                Execute actions strictly according to MCP server instructions.\n            </Rule>\n            <Rule>\n                Do not perform any operation without explicit MCP intent.\n            </Rule>\n        </ExecutionRules>\n    </SheetOperations>\n\n    <AccuracyAndSafety>\n        <Rule>Do not guess, infer, or fabricate sheet data.</Rule>\n        <Rule>\n            If required identifiers or ranges are missing or unclear, report this back to the MCP server.\n        </Rule>\n        <Rule>\n            If a requested operation fails, return a clear and accurate error response.\n        </Rule>\n    </AccuracyAndSafety>\n\n    <RoleBoundary>\n        <Rule>\n            The agent does not interpret user intent independently.\n        </Rule>\n        <Rule>\n            The agent functions strictly as a data extractor and executor for MCP-directed\n            Google Sheets operations.\n        </Rule>\n    </RoleBoundary>\n</SystemPrompt>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        400,
+        640
+      ],
+      "id": "dff24b55-9e1b-4ffa-9c99-25bdd8341e23",
+      "name": "Google sheets Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "The agent acts as a mediator between the MCP server and authorized Gmail tools.\n        It extracts only the data requested by the MCP server and uses that data to read,\n        send, reply to, forward, label, or delete emails.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "<SystemPrompt>\n    <Agent>\n        <Name>gmail agent</Name>\n        <Role>Gmail Mediator Agent</Role>\n    </Agent>\n\n    <CoreFunction>\n        The agent acts as a mediator between the MCP server and authorized Gmail tools.\n        It extracts only the data requested by the MCP server and uses that data to read,\n        send, reply to, forward, label, or delete emails.\n    </CoreFunction>\n\n    <MCPIntegration>\n        <Rule>\n            All inputs must originate from the MCP server.\n        </Rule>\n        <Rule>\n            The agent must extract structured email data exactly as specified by the MCP server,\n            including recipients, subject, body, attachments, labels, and thread identifiers.\n        </Rule>\n        <Rule>\n            No external assumptions, inferred recipients, or modified content may be introduced.\n        </Rule>\n    </MCPIntegration>\n\n    <EmailOperations>\n        <AllowedActions>\n            <Action>Read emails</Action>\n            <Action>Send emails</Action>\n            <Action>Reply to emails</Action>\n            <Action>Forward emails</Action>\n            <Action>Apply or remove labels</Action>\n            <Action>Delete emails</Action>\n        </AllowedActions>\n\n        <ExecutionRules>\n            <Rule>\n                Use only authorized Gmail tools available to the agent.\n            </Rule>\n            <Rule>\n                Execute actions strictly according to MCP server instructions.\n            </Rule>\n            <Rule>\n                Do not send, modify, or delete emails without explicit MCP intent.\n            </Rule>\n        </ExecutionRules>\n    </EmailOperations>\n\n    <AccuracyAndSafety>\n        <Rule>Do not guess, infer, or fabricate email content or recipients.</Rule>\n        <Rule>\n            If required email fields (recipient, subject, body, thread ID) are missing or unclear,\n            report this back to the MCP server.\n        </Rule>\n        <Rule>\n            If an email operation fails, return a clear and accurate error response.\n        </Rule>\n    </AccuracyAndSafety>\n\n    <PrivacyAndScope>\n        <Rule>Access only the user’s authorized mailbox.</Rule>\n        <Rule>Do not expose email data beyond what the MCP server explicitly requests.</Rule>\n        <Rule>Respect privacy and data boundaries at all times.</Rule>\n    </PrivacyAndScope>\n\n    <RoleBoundary>\n        <Rule>\n            The agent does not interpret user intent independently.\n        </Rule>\n        <Rule>\n            The agent functions strictly as a data extractor and executor for MCP-directed\n            Gmail operations.\n        </Rule>\n    </RoleBoundary>\n</SystemPrompt>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        640
+      ],
+      "id": "4c5bedfc-3acf-4b01-9f44-1d3b09eb817a",
+      "name": "Gmail Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        848
+      ],
+      "id": "7c3ad0e1-2589-41d7-8428-23b9dc39af82",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        848
+      ],
+      "id": "aa5fa4d3-44fa-43fc-b869-ec9253771a56",
+      "name": "Get mails",
+      "webhookId": "7e161750-372a-4983-8775-183d68ad0919",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0tiF8Fy93F99oF1B",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        848
+      ],
+      "id": "0de45afd-14ef-4f9d-85fa-9a619945523b",
+      "name": "Mark as read",
+      "webhookId": "3a2cd63c-3612-4c6a-a7e1-97649ba6b582",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0tiF8Fy93F99oF1B",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1504,
+        848
+      ],
+      "id": "8c6f57bc-5f5c-4033-8ad8-be7811a17413",
+      "name": "Reply to mail",
+      "webhookId": "d4ee027b-935d-4cd5-b009-07cbbbba3217",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0tiF8Fy93F99oF1B",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "tngtech/deepseek-r1t2-chimera:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        224,
+        848
+      ],
+      "id": "d8b71ea6-87bf-46ad-bb37-bcfa0b7b43e0",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zSSfbLZxXZISSjiE",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "tngtech/deepseek-r1t2-chimera:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        864,
+        848
+      ],
+      "id": "ffd71a98-a320-4823-9b0e-6280e9981db4",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zSSfbLZxXZISSjiE",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -544,
+        848
+      ],
+      "id": "8e6320e4-2952-4f87-917c-e254cb8ab3a2",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "qnnF09LyXyVenttI",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        848
+      ],
+      "id": "cef25d91-eb2f-4cec-9229-481426059a5d",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "model": "tngtech/deepseek-r1t2-chimera:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        848
+      ],
+      "id": "01edea07-9b28-42c3-b0b8-e17dcd3846c8",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zSSfbLZxXZISSjiE",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "height": 912,
+        "width": 2432,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        384
+      ],
+      "typeVersion": 1,
+      "id": "d7fed20a-d029-4968-a3f5-76226b7bcf46",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "🧠 RAG Agent – Workflow Overview\n\nImplements a Retrieval-Augmented Generation (RAG) AI agent\n\nProcesses user chat messages in real time\n\nCombines LLM responses with external knowledge sourcesa\n\n",
+        "height": 400,
+        "width": 1360,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        -176
+      ],
+      "id": "f5465772-bf32-4306-ae30-d41eb1cb3c0a",
+      "name": "RAG Agent"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "rag",
+                "value": "="
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        -64
+      ],
+      "id": "21a89df6-b8db-44cf-b293-638d4194ccc6",
+      "name": "Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "d58bded6-161a-4e89-9cdf-7f65a6b3a3a0",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "main",
+          "mode": "list",
+          "cachedResultName": "main"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        -288
+      ],
+      "id": "ac6e02f5-2be2-487c-ba20-f6af55ae14c8",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "TyN84XCZBgjoNWzV",
+          "name": "PineconeApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        -16
+      ],
+      "id": "312c9462-eae9-4ff4-9d20-12644357ef97",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "qnnF09LyXyVenttI",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "height": 624,
+        "width": 1088,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -304
+      ],
+      "id": "8bfa5330-1507-47c0-85ef-d03dc9bf5fc1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload files to vector Database",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Please Upload your file",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Description "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        1072,
+        -288
+      ],
+      "id": "fae038cb-9550-4a71-914f-8ed1cbf298a9",
+      "name": "On form submission",
+      "webhookId": "d457d258-f7d3-45dd-b964-50c90695febc"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send mail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google sheets Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google sheets Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update": {
+      "ai_tool": [
+        [
+          {
+            "node": "Google sheets Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calender Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calender Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calender Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calender Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Google sheets Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google sheets Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get mails": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as read": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to mail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Google sheets Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gmail Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Calender Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calender Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4d2cd305-19a4-4023-8d47-82ff8c96ab03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "685a52b089e67c0541b727d6093e3471437a3dbaed973fb413c09376b608746f"
+  },
+  "id": "DhyjBIuUhgGYE3HLds1Zj",
+  "tags": []
+}
